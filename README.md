@@ -1,7 +1,8 @@
 # Todolist
 This repository provides a base project to implemet Todolist application.
 
-`docker-compose.yml` provides Go 1.17 build tool, MySQL server and phpMyAdmin.
+`docker-compose.yml` provides Go 1.21 build tool, MySQL server and phpMyAdmin.
+
 
 ## Dependencies
 - [Gin Web Framework](https://pkg.go.dev/github.com/gin-gonic/gin)
