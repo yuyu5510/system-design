@@ -28,6 +28,7 @@ func main() {
 
 	// initialize Gin engine
 	engine := gin.Default()
+	engine.Static("/css", "views/css/")
 	engine.LoadHTMLGlob("views/*.html")
 
 	// routing
