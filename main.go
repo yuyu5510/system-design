@@ -28,7 +28,6 @@ func main() {
 
 	// initialize Gin engine
 	engine := gin.Default()
-	engine.Static("/css", "views/css/")
 	engine.LoadHTMLGlob("views/*.html")
 
 	// routing
@@ -38,15 +37,15 @@ func main() {
 	engine.GET("/task/:id", service.ShowTask) // ":id" is a parameter
 
 	//　タスクの新規登録
-	engine.GET("/task/new", service.NotImplemented)
-	engine.POST("/task/new", service.NotImplemented)
+	engine.GET("/task/new", service.NewTaskForm)
+	engine.POST("/task/new", service.RegisterTask)
 
 	// 既存のタスクの編集
-	engine.GET("/task/edit/:id", service.NotImplemented)
-	engine.POST("/task/edit/:id", service.NotImplemented)
+	engine.GET("/task/edit/:id", service.EditTaskForm)
+	engine.POST("/task/edit/:id", service.UpdateTask)
 
 	//　既存タスクの削除
-	engine.GET("/task/delete/:id", service.NotImplemented)
+	engine.GET("/task/delete/:id", service.DeleteTask)
 
 	// start server
 	engine.Run(fmt.Sprintf(":%d", port))
