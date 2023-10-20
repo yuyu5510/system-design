@@ -1,4 +1,8 @@
 /* placeholder file for CSS */
+p {
+    white-space: pre-line;
+}
+
 table {
     border-collapse: collapse;
 }

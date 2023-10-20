@@ -47,6 +47,10 @@ func main() {
 	//　既存タスクの削除
 	engine.GET("/task/delete/:id", service.DeleteTask)
 
+	// ユーザ登録
+	engine.GET("/user/new", service.NewUserForm)
+	engine.POST("/user/new", service.RegisetrUser)
+
 	// start server
 	engine.Run(fmt.Sprintf(":%d", port))
 }
