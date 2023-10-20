@@ -18,16 +18,34 @@ func TaskList(ctx *gin.Context) {
 		return
 	}
 
+	// Get query parameter
+	kw := ctx.Query("kw")
+	is_done := ctx.Query("is_done")
+	is_not_done := ctx.Query("is_not_done")
+
 	// Get tasks in DB
 	var tasks []database.Task
-	err = db.Select(&tasks, "SELECT * FROM tasks") // Use DB#Select for multiple entries
+	switch{
+		// チェックボックスに両方つけるまたは両方つけない時タイトル検索だけ行う
+		case kw != "" && ((is_done != "" && is_not_done != "") || (is_done == "" && is_not_done == "")):
+			err = db.Select(&tasks, "SELECT * FROM tasks WHERE title LIKE ?", "%" + kw + "%")
+		case kw != "" && (is_done != "" && is_not_done == ""):
+			err = db.Select(&tasks, "SELECT * FROM tasks WHERE title LIKE ? AND is_done=?", "%" + kw + "%", true)
+		case kw != "" && (is_done == "" && is_not_done != ""):
+			err = db.Select(&tasks, "SELECT * FROM tasks WHERE title LIKE ? AND is_done=?", "%" + kw + "%", false)
+		case kw == "" && (is_done != "" && is_not_done == ""):
+			err = db.Select(&tasks, "SELECT * FROM tasks WHERE is_done=?", true)
+		case kw == "" && (is_done == "" && is_not_done != ""):
+			err = db.Select(&tasks, "SELECT * FROM tasks WHERE is_done=?", false)
+		default:
+			err = db.Select(&tasks, "SELECT * FROM tasks")
+	}	
 	if err != nil {
 		Error(http.StatusInternalServerError, err.Error())(ctx)
 		return
 	}
-
 	// Render tasks
-	ctx.HTML(http.StatusOK, "task_list.html", gin.H{"Title": "Task list", "Tasks": tasks})
+	ctx.HTML(http.StatusOK, "task_list.html", gin.H{"Title": "Task list", "Tasks": tasks, "Kw": kw, "IsDone": is_done, "IsNotDone": is_not_done})
 }
 
 // ShowTask renders a task with given ID
