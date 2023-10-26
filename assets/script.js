@@ -11,3 +11,10 @@ const confirm_update = (id) => {
     form.submit();
   }
 };
+
+const confirm_delete_user = (userid) =>{
+    if(window.confirm(`User ${userid} を削除します。よろしいですか？`)){
+        location.href = `/delete`;
+        location.href = `/`
+    }
+}

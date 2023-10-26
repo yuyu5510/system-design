@@ -1,16 +1,17 @@
 {{ template "header" . }}
-<h1>Task: {{ .Title }}</h1>
+<h1>Task: {{ .Tasks.Title }}</h1>
 <dl>
   <dt>ID</dt>
-  <dd>{{ .ID}}</dd>
+  <dd>{{ .Tasks.ID}}</dd>
   <dt>Created at</dt>
-  <dd>{{ .CreatedAt}}</dd>
+  <dd>{{ .Tasks.CreatedAt}}</dd>
   <dt>Description</dt>
-  <dd>{{ .Description}}</dd>
+  <dd>{{ .Tasks.Description}}</dd>
   <dt>Status</dt>
-  <dd><input type="checkbox" {{ if .IsDone }} checked {{end }}disabled />済</dd>
+  <dd><input type="checkbox" {{ if .Tasks.IsDone }} checked {{end }}disabled />済</dd>
 </dl>
 <a href="/list"><button type="button">リストへ戻る</button></a>
-<a href="/task/edit/{{ .ID }}"><button type="button">編集</button></a>
-<button type="button" onclick="confirm_delete({{ .ID }})">削除</button>
+<a href="/task/edit/{{ .Tasks.ID }}"><button type="button">編集</button></a>
+<button type="button" onclick="confirm_delete({{ .Tasks.ID }})">削除</button>
+{{ template "operation" . }}
 {{ template "footer" }}
