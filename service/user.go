@@ -59,7 +59,7 @@ func LoginCheck(ctx *gin.Context) {
 func Logout(ctx *gin.Context){
 	session := sessions.Default(ctx)
 	session.Clear()
-	session.Options(sessions.Options{MaxAge: -1})
+	session.Options(sessions.Options{Path: "/", MaxAge: -1})
 	session.Save()
 	ctx.Redirect(http.StatusFound, "/")
 }
@@ -156,17 +156,11 @@ func RegisterUser (ctx *gin.Context){
 
 func DeleteUser(ctx *gin.Context){
 	userID := sessions.Default(ctx).Get("user")
-	session := sessions.Default(ctx)
-	session.Clear()
-	session.Options(sessions.Options{MaxAge: -1})
-	session.Save()
-
 	db, err := database.GetConnection()
 	if err != nil{
 		Error(http.StatusInternalServerError, err.Error())(ctx)
 		return
 	}
-
 	_, err = db.Exec("UPDATE users SET is_valid=? WHERE id=?", false, userID)
 	
 	if err != nil{
@@ -174,6 +168,5 @@ func DeleteUser(ctx *gin.Context){
 		return
 	}
 
-	path := "/"
-	ctx.Redirect(http.StatusFound, path)
+	Logout(ctx)
 }

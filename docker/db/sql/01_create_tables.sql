@@ -18,7 +18,7 @@ CREATE TABLE `users` (
     `password`   binary(32) NOT NULL,
     `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `is_valid`   tinyint(1) NOT NULL DEFAULT 1,
+    `is_valid`   boolean NOT NULL DEFAULT b'1',
     PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8mb4;
 
@@ -27,5 +27,5 @@ DROP TABLE IF EXISTS `ownership`;
 CREATE TABLE `ownership` (
     `user_id` bigint(20) NOT NULL,
     `task_id` bigint(20) NOT NULL,
-    PRIMARY KEY (`user_id`, `task_id`),
-) DEFAULT CHARSET=utf8mb4
+    PRIMARY KEY (`user_id`, `task_id`)
+) DEFAULT CHARSET=utf8mb4;

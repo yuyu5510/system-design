@@ -67,7 +67,7 @@ func main() {
 	engine.POST("/login", service.Login)
 
 	engine.GET("/logout", service.LoginCheck, service.Logout)
-	engine.GET("/delete", service.LoginCheck, service.DeleteUser)
+	engine.GET("/user/delete", service.LoginCheck, service.DeleteUser)
 
 	// start server
 	engine.Run(fmt.Sprintf(":%d", port))
