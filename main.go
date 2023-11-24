@@ -67,6 +67,8 @@ func main() {
 	engine.POST("/login", service.Login)
 
 	engine.GET("/logout", service.LoginCheck, service.Logout)
+	engine.GET("/user/change", service.LoginCheck, service.ChangeUserNameAndPasswordForm)
+	engine.POST("/user/change", service.LoginCheck, service.ChangeUserNameAndPassword)
 	engine.GET("/user/delete", service.LoginCheck, service.DeleteUser)
 
 	// start server
