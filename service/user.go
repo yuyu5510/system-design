@@ -154,6 +154,96 @@ func RegisterUser (ctx *gin.Context){
 	ctx.Redirect(http.StatusFound, "/login")
 }
 
+func ChangeUserNameAndPasswordForm(ctx *gin.Context){
+	userID := sessions.Default(ctx).Get("user")
+	db, err := database.GetConnection()
+	if err != nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+		return
+	}
+	var user database.User
+	err = db.Get(&user, "SELECT id, name, password, is_valid FROM users WHERE id = ?", userID);
+	if err != nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+	}
+	ctx.HTML(http.StatusOK, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Username": user.Name});
+}
+
+func ChangeUserNameAndPassword (ctx *gin.Context){
+	username := ctx.PostForm("old_username")
+	new_username := ctx.PostForm("new_username")
+	old_password := ctx.PostForm("old_password")
+	new_password := ctx.PostForm("new_password")
+	new_password_confirm := ctx.PostForm("new_password_confirm")
+	password_check := checkPassword(new_password)
+	switch{
+		case new_username == "":
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Username is not provided", "Username": username})
+			return
+		case new_password == "":
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Password is not provided", "Username": username})
+			return
+		case new_password_confirm == "":
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Password confirm is not provided", "Username": username})
+			return
+		case new_password != new_password_confirm:
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Passwords do not match", "Username": username})
+			return
+		case len(new_password) < 8:
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Password is too short", "Username": username})
+			return
+		case password_check != "":
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": password_check, "Username": username})
+			return
+	}
+
+	db, err := database.GetConnection()
+	if err != nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+		return
+	}
+
+	// check duplication of new_username
+	if username != new_username{
+		var duplicate int
+		err = db.Get(&duplicate, "SELECT COUNT(*) FROM users WHERE name=?", new_username)
+		if err != nil {
+			Error(http.StatusInternalServerError, err.Error())(ctx)
+			return 
+		}
+		if duplicate > 0 {
+			ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Username is already taken", "Username": username})
+			return
+		}
+	}
+
+	userID := sessions.Default(ctx).Get("user")
+	if userID == nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+		return
+	}
+	var user database.User
+	err = db.Get(&user, "SELECT id, name, password, is_valid FROM users WHERE id = ?", userID)
+	if err != nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+		return
+	}
+
+	if hex.EncodeToString(user.Password) != hex.EncodeToString(hash(old_password)) {
+		// password is not correct
+		ctx.HTML(http.StatusBadRequest, "change_user_name_and_password.html", gin.H{"Title": "Change user name and password", "Error": "Incorrect Password", "Username": username})
+		return
+	}
+
+	_, err = db.Exec("UPDATE users SET name=?, password=? WHERE id=?", new_username, hash(new_password), user.ID)
+	if err != nil {
+		Error(http.StatusInternalServerError, err.Error())(ctx)
+		return
+	}
+	ctx.Redirect(http.StatusFound, "/list")
+}
+
+
 func DeleteUser(ctx *gin.Context){
 	userID := sessions.Default(ctx).Get("user")
 	db, err := database.GetConnection()
